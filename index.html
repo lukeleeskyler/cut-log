@@ -1,52 +1,583 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0d10"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="减脂随手记"><title>减脂随手记</title><style>
-:root{--bg:#0b0d10;--card:#151922;--card2:#10141b;--muted:#9099a8;--text:#f5f7fb;--accent:#63d792;--line:#282e39;--soft:#202731}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}.wrap{max-width:820px;margin:auto;padding:16px 14px 120px}h1{margin:6px 0 4px;font-size:26px}.sub,.small{color:var(--muted);font-size:13px;line-height:1.55}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin:12px 0}.hero{background:linear-gradient(135deg,#153522,#151922);border:1px solid #285a3d;border-radius:20px;padding:18px}.big{font-size:30px;font-weight:800}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.section{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,select,textarea{width:100%;background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:11px;font-size:16px}textarea{min-height:88px}button{border:1px solid var(--line);border-radius:13px;background:var(--soft);color:var(--text);padding:10px 12px;font-weight:700}button.primary{background:var(--accent);color:#07140c;border:0}.ghost{background:transparent}.active{background:#1f3b2b!important;border-color:#3e7b57!important}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border-radius:999px;padding:8px 10px}.food{display:grid;grid-template-columns:1.25fr .72fr .65fr .65fr auto;gap:7px;margin:8px 0}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.kpi{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:10px}.kpi span{font-size:11px;color:var(--muted)}.kpi b{display:block;font-size:18px}.preview{white-space:pre-wrap;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:13px;font-size:13px;line-height:1.55}.tabs{display:flex;gap:8px;margin:12px 0}.tabs button{flex:1}.hidden{display:none!important}.sticky{position:fixed;left:0;right:0;bottom:0;padding:28px 14px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(11,13,16,0),rgba(11,13,16,.98) 30%)}.sticky>div{max-width:820px;margin:auto;display:flex;gap:9px}.sticky button{flex:1;padding:14px}.history{padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}canvas{width:100%;height:190px;background:var(--card2);border:1px solid var(--line);border-radius:14px}.note{font-size:12px;color:var(--muted);line-height:1.5}@media(max-width:620px){.kpis{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}.food{grid-template-columns:1.15fr .7fr .62fr .62fr auto}}
-</style></head><body>
-<div id="setup" class="wrap hidden"><div class="hero"><h1>减脂随手记</h1><div class="sub">首次打开 1 分钟设置。数据默认只存在当前浏览器。</div></div><div class="card"><div class="grid"><div><label>昵称</label><input id="pn"></div><div><label>性别</label><select id="ps"><option value="male">男</option><option value="female">女</option></select></div><div><label>年龄</label><input id="pa" type="number"></div><div><label>身高 cm</label><input id="ph" type="number"></div><div><label>当前体重 kg</label><input id="pw" type="number" step="0.1"></div><div><label>目标体重 kg</label><input id="pg" type="number" step="0.1"></div><div><label>日常活动</label><select id="pac"><option value="1.2">久坐</option><option value="1.35">轻度活动</option><option value="1.5">中等活动</option></select></div><div><label>每周健身</label><select id="pgym"><option>0</option><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div><div><label>减脂强度</label><select id="pdef"><option value="0.1">温和 -10%</option><option value="0.15" selected>标准 -15%</option><option value="0.2">积极 -20%</option></select></div><div><label>啤酒 kcal/500ml</label><input id="pbk" type="number" value="115"></div></div></div><button id="start" class="primary" style="width:100%;padding:15px">开始使用</button></div>
-<div id="app" class="wrap hidden"><div class="section"><div><h1 id="title">减脂随手记</h1><div class="sub">记录优先，精准其次。</div></div><button id="settings" class="ghost">设置</button></div><div class="hero"><div class="small">今日减脂热量参考</div><div class="big"><span id="target">—</span> kcal</div><div class="grid3"><div><span class="small">BMR</span><br><b id="bmr">—</b></div><div><span class="small">TDEE</span><br><b id="tdee">—</b></div><div><span class="small">蛋白目标</span><br><b id="pt">—</b></div></div></div><div class="tabs"><button id="todayTab" class="active">今天</button><button id="trendTab" class="ghost">7天趋势</button><button id="dataTab" class="ghost">数据</button></div>
-<div id="todayPanel"><div class="card"><div class="grid"><div><label>日期</label><input id="date" type="date"></div><div><label>晨重 kg</label><input id="weight" type="number" step="0.1"></div><div><label>步数</label><input id="steps" type="number"></div><div><label>睡眠 h</label><input id="sleep" type="number" step="0.5"></div></div></div>
-<div class="card"><div class="section"><b>训练</b><span class="small">详细一点，但不繁琐</span></div><label>类型</label><div id="types" class="chips"><button class="chip active" data-v="休息">休息</button><button class="chip" data-v="力量">力量</button><button class="chip" data-v="有氧">有氧</button><button class="chip" data-v="力量+有氧">力量+有氧</button></div><div id="partsWrap" class="hidden" style="margin-top:12px"><label>部位（可多选）</label><div id="parts" class="chips"><button class="chip" data-v="胸">胸</button><button class="chip" data-v="背">背</button><button class="chip" data-v="肩">肩</button><button class="chip" data-v="腿">腿</button><button class="chip" data-v="二头">二头</button><button class="chip" data-v="三头">三头</button><button class="chip" data-v="核心">核心</button></div></div><div class="grid" style="margin-top:12px"><div><label>时长 分钟</label><input id="mins" type="number" placeholder="50"></div><div><label>强度</label><select id="intensity"><option value="">未记录</option><option>轻松</option><option>中等</option><option>较累</option></select></div></div><div style="margin-top:10px"><label>主要动作（可选）</label><input id="moves" placeholder="例如：深蹲、二头弯举、三头下压"></div></div>
-<div class="card"><div class="section"><b>今天吃了什么</b><button id="copyY" class="ghost">复制昨天</button></div><div class="chips" style="margin-bottom:10px"><button class="chip q" data-n="米饭" data-a="200g" data-k="230" data-p="5">+米饭</button><button class="chip q" data-n="鸡肉" data-a="200g" data-k="330" data-p="55">+鸡肉</button><button class="chip q" data-n="牛肉" data-a="200g" data-k="400" data-p="50">+牛肉</button><button class="chip q" data-n="鱼虾" data-a="200g" data-k="220" data-p="45">+鱼虾</button><button class="chip q" data-n="鸡蛋" data-a="2个" data-k="140" data-p="12">+鸡蛋</button><button class="chip q" data-n="奶类" data-a="1份" data-k="120" data-p="10">+奶类</button><button class="chip q" data-n="水果" data-a="1份" data-k="100" data-p="1">+水果</button><button class="chip q" data-n="蔬菜" data-a="300g" data-k="100" data-p="6">+蔬菜</button><button class="chip q" data-n="坚果/花生" data-a="50g" data-k="300" data-p="10">+坚果</button></div><div id="foods"></div><button id="addFood" class="ghost">＋添加食物</button><div class="note" style="margin-top:8px">快捷热量/蛋白只是默认估值，可改；不知道就留空。</div><div style="margin-top:10px"><label>饮食备注</label><textarea id="note" placeholder="例如：烧烤一顿 / 外卖咖喱饭 / 聚餐"></textarea></div></div>
-<div class="card"><div class="section"><b>啤酒 / 酒精</b><span class="small">500ml/罐</span></div><div class="grid"><div><label>罐数</label><input id="beer" type="number" min="0" value="0"></div><div><label>每罐 kcal</label><input id="beerK" type="number" value="115"></div></div><div class="chips" style="margin-top:10px"><button class="chip bq" data-v="0">0</button><button class="chip bq" data-v="2">2罐</button><button class="chip bq" data-v="4">4罐</button><button class="chip bq" data-v="6">6罐</button><button class="chip bq" data-v="8">8罐</button></div></div>
-<div class="card"><div class="section"><b>今日自动汇总</b><span class="small">只统计已填数据</span></div><div class="kpis"><div class="kpi"><span>食物</span><b id="foodTotal">0</b><span>kcal</span></div><div class="kpi"><span>啤酒</span><b id="beerTotal">0</b><span>kcal</span></div><div class="kpi"><span>总摄入</span><b id="total">0</b><span>kcal</span></div><div class="kpi"><span>蛋白</span><b id="protein">0</b><span>g</span></div></div></div><div class="card"><b>发给 ChatGPT</b><div id="preview" class="preview" style="margin-top:10px"></div></div></div>
-<div id="trendPanel" class="hidden"><div class="card"><div class="section"><b>体重趋势</b><span id="trendText" class="small">数据不足</span></div><canvas id="chart" width="760" height="190"></canvas><div class="kpis" style="margin-top:10px"><div class="kpi"><span>最近7日均重</span><b id="avg7">—</b><span>kg</span></div><div class="kpi"><span>前7日均重</span><b id="prev7">—</b><span>kg</span></div><div class="kpi"><span>7日变化</span><b id="delta">—</b><span>kg</span></div><div class="kpi"><span>最近7日酒精</span><b id="beer7">—</b><span>罐</span></div></div></div><div class="card"><div class="section"><b>最近14条记录</b><span class="small">看趋势，不看单日</span></div><div id="history"></div></div></div>
-<div id="dataPanel" class="hidden"><div class="card"><b>数据备份</b><div class="chips" style="margin-top:10px"><button id="export">导出 JSON</button><button id="import" class="ghost">导入 JSON</button><input id="importFile" class="hidden" type="file" accept="application/json"></div></div><div class="card"><button id="reset" class="ghost">清空当前设备数据</button></div></div></div>
-<div id="bar" class="sticky hidden"><div><button id="save">保存今天</button><button id="share" class="primary">发给 ChatGPT / 分享</button></div></div>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#0b0d10">
+<title>减脂随手记 · 分享版</title>
+<style>
+:root{
+  --bg:#0b0d10; --card:#151922; --card2:#10141b; --muted:#9099a8; --text:#f5f7fb;
+  --accent:#63d792; --accent2:#2e9e62; --line:#282e39; --warn:#f4c66c; --danger:#ff8b83;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:820px;margin:auto;padding:16px 14px 120px}
+h1{margin:6px 0 4px;font-size:26px}
+h2{font-size:18px;margin:0}
+.sub{color:var(--muted);font-size:14px;line-height:1.55;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin:12px 0}
+.card.soft{background:linear-gradient(180deg,#161b24,#12161d)}
+.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.section-title b{font-size:16px}
+.small{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+input,select,textarea{
+  width:100%;background:var(--card2);color:var(--text);border:1px solid var(--line);
+  border-radius:12px;padding:11px 12px;font-size:16px;outline:none
+}
+textarea{min-height:92px;resize:vertical}
+button{border:0;border-radius:13px;padding:11px 13px;font-weight:700;font-size:14px;cursor:pointer}
+.primary{background:var(--accent);color:#07140c}
+.secondary{background:#252c37;color:var(--text)}
+.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.danger{background:#3a2323;color:#ffd7d3}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:#202731;border:1px solid var(--line);color:#edf2f7;padding:8px 10px;border-radius:999px;font-size:13px}
+.chip.active{background:#1f3b2b;border-color:#3e7b57}
+.food-row{display:grid;grid-template-columns:1.4fr .8fr .7fr auto;gap:8px;margin:8px 0}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.kpi{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:11px}
+.kpi span{font-size:11px;color:var(--muted)}
+.kpi b{display:block;font-size:18px;margin:3px 0}
+.hero{padding:18px;background:linear-gradient(135deg,#153522,#151922);border:1px solid #285a3d;border-radius:20px}
+.hero .big{font-size:30px;font-weight:800;margin:5px 0}
+.progress{height:10px;background:#0e1218;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.progress > div{height:100%;background:var(--accent);width:0%}
+.preview{white-space:pre-wrap;word-break:break-word;background:var(--card2);border:1px solid var(--line);padding:13px;border-radius:14px;font-size:13px;line-height:1.55}
+.notice{font-size:12px;color:var(--muted);line-height:1.55}
+.badge{display:inline-block;background:#203126;color:#9ee8b8;padding:4px 8px;border-radius:999px;font-size:12px}
+.sticky{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,13,16,0),rgba(11,13,16,.98) 30%);padding:28px 14px calc(14px + env(safe-area-inset-bottom))}
+.sticky .inner{max-width:820px;margin:auto;display:flex;gap:9px}
+.sticky button{flex:1;padding:14px 13px;font-size:15px}
+.hidden{display:none!important}
+.history-item{padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5}
+.tabs{display:flex;gap:8px;margin:12px 0}
+.tabs button{flex:1}
+.onboarding{max-width:680px;margin:24px auto}
+.sep{height:1px;background:var(--line);margin:14px 0}
+@media(max-width:620px){
+  .grid,.grid3{grid-template-columns:1fr 1fr}
+  .kpis{grid-template-columns:1fr 1fr}
+  .food-row{grid-template-columns:1.25fr .8fr .7fr auto}
+}
+</style>
+</head>
+<body>
+
+<div id="onboardingView" class="wrap onboarding hidden">
+  <div class="hero">
+    <span class="badge">分享版</span>
+    <h1>减脂随手记</h1>
+    <div class="sub">第一次打开，只需要 1 分钟建立你的个人目标。所有数据只保存在你自己的浏览器里。</div>
+  </div>
+
+  <div class="card">
+    <div class="section-title"><b>1. 基本信息</b><span class="small">用于估算 BMR / TDEE</span></div>
+    <div class="grid">
+      <div><label>昵称</label><input id="pName" placeholder="例如 Luke"></div>
+      <div><label>性别</label><select id="pSex"><option value="male">男</option><option value="female">女</option></select></div>
+      <div><label>年龄</label><input id="pAge" type="number" placeholder="38"></div>
+      <div><label>身高 cm</label><input id="pHeight" type="number" placeholder="175"></div>
+      <div><label>体重 kg</label><input id="pWeight" type="number" step="0.1" placeholder="78"></div>
+      <div><label>目标体重 kg</label><input id="pGoalWeight" type="number" step="0.1" placeholder="70"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title"><b>2. 活动习惯</b><span class="small">按“平时生活状态”选</span></div>
+    <div class="grid">
+      <div>
+        <label>日常活动</label>
+        <select id="pActivity">
+          <option value="1.2">久坐 / 办公为主</option>
+          <option value="1.35">轻度活动</option>
+          <option value="1.5">中等活动</option>
+          <option value="1.65">高活动</option>
+        </select>
+      </div>
+      <div>
+        <label>每周健身次数</label>
+        <select id="pGym">
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+          <option value="3" selected>3</option><option value="4">4</option><option value="5">5+</option>
+        </select>
+      </div>
+      <div>
+        <label>当前日均步数</label>
+        <input id="pSteps" type="number" placeholder="3000">
+      </div>
+      <div>
+        <label>减脂强度</label>
+        <select id="pDeficit">
+          <option value="0.10">温和（-10%）</option>
+          <option value="0.15" selected>标准（-15%）</option>
+          <option value="0.20">积极（-20%）</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title"><b>3. 饮酒（可选）</b><span class="small">方便记录，不用于诊断</span></div>
+    <div class="grid">
+      <div><label>常喝容量 ml/罐</label><input id="pBeerMl" type="number" value="500"></div>
+      <div><label>每罐估算 kcal</label><input id="pBeerKcal" type="number" value="115"></div>
+    </div>
+    <div class="notice" style="margin-top:10px">如果经常大量饮酒且停酒时出现手抖、出汗、心悸、明显焦虑、恶心或失眠，不建议自行突然停酒，应寻求医疗建议。</div>
+  </div>
+
+  <button class="primary" id="startBtn" style="width:100%;padding:15px;font-size:16px">开始使用</button>
+</div>
+
+<div id="appView" class="wrap hidden">
+  <div class="section-title">
+    <div>
+      <h1 id="helloTitle">减脂随手记</h1>
+      <div class="sub">记录优先，精准其次。连续 7–14 天的数据，比一天的完美记录更有价值。</div>
+    </div>
+    <button class="ghost" id="settingsBtn">个人设置</button>
+  </div>
+
+  <div class="hero">
+    <div class="small">今日建议热量</div>
+    <div class="big"><span id="targetKcal">—</span> kcal</div>
+    <div class="grid3">
+      <div><span class="small">BMR</span><br><b id="bmrVal">—</b></div>
+      <div><span class="small">估算 TDEE</span><br><b id="tdeeVal">—</b></div>
+      <div><span class="small">蛋白目标</span><br><b id="proteinTarget">—</b></div>
+    </div>
+    <div class="sep"></div>
+    <div class="small">从当前体重到目标体重</div>
+    <div class="progress"><div id="goalProgress"></div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="secondary" id="tabToday">今天</button>
+    <button class="ghost" id="tabHistory">趋势</button>
+    <button class="ghost" id="tabData">数据</button>
+  </div>
+
+  <div id="todayPanel">
+    <div class="card">
+      <div class="grid">
+        <div><label>日期</label><input id="date" type="date"></div>
+        <div><label>晨重 kg</label><input id="weight" type="number" step="0.1" placeholder="77.8"></div>
+        <div><label>步数</label><input id="steps" type="number" placeholder="6500"></div>
+        <div><label>睡眠 h</label><input id="sleep" type="number" step="0.5" placeholder="7"></div>
+      </div>
+      <div style="margin-top:12px">
+        <label>训练</label>
+        <div class="chips" id="trainingChips">
+          <button class="chip active" data-v="无">休息</button>
+          <button class="chip" data-v="力量训练">力量</button>
+          <button class="chip" data-v="有氧">有氧</button>
+          <button class="chip" data-v="力量 + 有氧">力量+有氧</button>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <label>训练部位（可多选）</label>
+        <div class="chips" id="bodyPartChips">
+          <button class="chip bodypart" data-v="胸">胸</button><button class="chip bodypart" data-v="背">背</button>
+          <button class="chip bodypart" data-v="肩">肩</button><button class="chip bodypart" data-v="腿">腿</button>
+          <button class="chip bodypart" data-v="二头">二头</button><button class="chip bodypart" data-v="三头">三头</button>
+          <button class="chip bodypart" data-v="核心">核心</button>
+        </div>
+      </div>
+      <div class="grid" style="margin-top:12px">
+        <div><label>训练时长（分钟）</label><input id="trainingMinutes" type="number" placeholder="例如 50"></div>
+        <div><label>训练强度</label><select id="trainingIntensity"><option value="">未记录</option><option>轻松</option><option>中等</option><option>较累</option></select></div>
+        <div class="full"><label>主要动作（可选）</label><input id="mainExercises" placeholder="例如：深蹲、二头弯举、三头下压"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">
+        <b>今天吃了什么</b>
+        <button class="ghost" id="repeatBtn">复制昨天</button>
+      </div>
+
+      <div class="chips" style="margin-bottom:10px">
+        <button class="chip quick" data-name="米饭" data-amount="200g">+ 米饭</button>
+        <button class="chip quick" data-name="鸡胸/鸡腿" data-amount="200g">+ 鸡肉</button>
+        <button class="chip quick" data-name="牛肉" data-amount="200g">+ 牛肉</button>
+        <button class="chip quick" data-name="鱼虾" data-amount="200g">+ 鱼虾</button>
+        <button class="chip quick" data-name="鸡蛋" data-amount="2个">+ 鸡蛋</button>
+        <button class="chip quick" data-name="酸奶/牛奶" data-amount="1份">+ 酸奶</button>
+        <button class="chip quick" data-name="水果" data-amount="1份">+ 水果</button>
+        <button class="chip quick" data-name="蔬菜" data-amount="300g">+ 蔬菜</button>
+        <button class="chip quick" data-name="坚果/花生" data-amount="50g">+ 坚果</button>
+      </div>
+
+      <div id="foodList"></div>
+      <button class="secondary" id="addFoodBtn">＋ 添加一条食物</button>
+      <div style="margin-top:12px">
+        <label>随手备注</label>
+        <textarea id="foodNote" placeholder="例如：烧烤一顿 / 外卖咖喱饭 / 聚餐不知道热量"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><b>啤酒 / 酒精</b><span class="small" id="beerLabel">500ml/罐</span></div>
+      <div class="grid">
+        <div><label>罐数</label><input id="beerCount" type="number" min="0" value="0"></div>
+        <div><label>每罐估算 kcal</label><input id="beerKcal" type="number" value="115"></div>
+      </div>
+      <div class="chips" style="margin-top:10px">
+        <button class="chip beerQuick" data-v="0">0</button>
+        <button class="chip beerQuick" data-v="2">2罐</button>
+        <button class="chip beerQuick" data-v="4">4罐</button>
+        <button class="chip beerQuick" data-v="6">6罐</button>
+        <button class="chip beerQuick" data-v="8">8罐</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><b>可选：大概热量</b><span class="small">不知道就不填</span></div>
+      <div class="grid">
+        <div><label>正常食物 kcal</label><input id="foodKcal" type="number" placeholder="例如 1900"></div>
+        <div><label>蛋白质 g</label><input id="protein" type="number" placeholder="例如 155"></div>
+      </div>
+      <div class="kpis" style="margin-top:10px">
+        <div class="kpi"><span>啤酒热量</span><b id="beerTotal">0</b><span>kcal</span></div>
+        <div class="kpi"><span>已知总摄入</span><b id="knownTotal">—</b><span>kcal</span></div>
+        <div class="kpi"><span>目标热量</span><b id="targetKpi">—</b><span>kcal</span></div>
+        <div class="kpi"><span>蛋白目标</span><b id="proteinKpi">—</b><span>g/天</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><b>发给 ChatGPT</b><span class="small">自动生成结构化日报</span></div>
+      <div id="preview" class="preview"></div>
+    </div>
+  </div>
+
+  <div id="historyPanel" class="hidden">
+    <div class="card">
+      <div class="section-title"><b>最近 14 条记录</b><span class="small">看趋势，不看单日</span></div>
+      <div id="history"></div>
+    </div>
+  </div>
+
+  <div id="dataPanel" class="hidden">
+    <div class="card">
+      <div class="section-title"><b>数据备份</b><span class="small">方便换手机 / 分享模板</span></div>
+      <div class="chips">
+        <button class="secondary" id="exportBtn">导出我的数据</button>
+        <button class="ghost" id="importBtn">导入数据</button>
+        <input id="importFile" type="file" accept="application/json" class="hidden">
+      </div>
+      <div class="notice" style="margin-top:10px">导出的 JSON 包含你的个人设置与日志，请自行保管，不要发到公开群聊。</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><b>分享给朋友</b><span class="small">不会分享你的记录</span></div>
+      <div class="notice">把这个 HTML 文件或部署后的网页链接发给朋友即可。朋友第一次打开会进入自己的初始化页面，数据独立保存在自己的浏览器里。</div>
+      <div class="chips" style="margin-top:10px">
+        <button class="primary" id="shareToolBtn">分享这个工具</button>
+        <button class="ghost" id="resetBtn">清空我的本地数据</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="stickyBar" class="sticky hidden">
+  <div class="inner">
+    <button class="secondary" id="saveBtn">保存今天</button>
+    <button class="primary" id="shareBtn">发给 ChatGPT / 分享</button>
+  </div>
+</div>
+
 <script>
-const $=id=>document.getElementById(id),PK='cutlog_profile_v5',LK='cutlog_logs_v5';let type='休息',parts=new Set();const today=()=>{const d=new Date(),o=d.getTimezoneOffset();return new Date(d-o*60000).toISOString().slice(0,10)};const read=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(f))}catch(e){return f}},gp=()=>read(PK,null),gl=()=>read(LK,[]);function bmr(p){return Math.round(10*p.weight+6.25*p.height-5*p.age+(p.sex==='male'?5:-161))}function tdee(p){return Math.round(bmr(p)*p.activity+Math.min(220,p.gym*45))}function targetK(p){return Math.round(tdee(p)*(1-p.deficit))}function ptarget(p){return Math.round(p.weight*2)}
-function showSetup(){app.classList.add('hidden');bar.classList.add('hidden');setup.classList.remove('hidden');const p=gp();if(p){pn.value=p.name||'';ps.value=p.sex;pa.value=p.age;ph.value=p.height;pw.value=p.weight;pg.value=p.goalWeight;pac.value=p.activity;pgym.value=p.gym;pdef.value=p.deficit;pbk.value=p.beerKcal}}
-function showApp(){const p=gp();setup.classList.add('hidden');app.classList.remove('hidden');bar.classList.remove('hidden');date.value=today();beerK.value=p.beerKcal||115;title.textContent=(p.name?p.name+' 的':'')+'减脂随手记';bmrEl.textContent=bmr(p);tdeeEl.textContent=tdee(p);target.textContent=targetK(p);pt.textContent=ptarget(p)+'g';if(!foods.children.length)addRow();refresh()};const bmrEl=document.getElementById('bmr'),tdeeEl=document.getElementById('tdee');
-start.onclick=()=>{const p={name:pn.value.trim(),sex:ps.value,age:+pa.value,height:+ph.value,weight:+pw.value,goalWeight:+pg.value,activity:+pac.value,gym:+pgym.value,deficit:+pdef.value,beerKcal:+pbk.value||115};if(!p.age||!p.height||!p.weight||!p.goalWeight)return alert('请填写年龄、身高、体重和目标体重');localStorage.setItem(PK,JSON.stringify(p));showApp()};settings.onclick=showSetup;
-function addRow(n='',a='',k='',p=''){const r=document.createElement('div');r.className='food';r.innerHTML=`<input class="fn" placeholder="食物" value="${n}"><input class="fa" placeholder="克数/份" value="${a}"><input class="fk" type="number" placeholder="kcal" value="${k}"><input class="fp" type="number" placeholder="蛋白g" value="${p}"><button class="ghost rm">×</button>`;r.querySelectorAll('input').forEach(x=>x.oninput=refresh);r.querySelector('.rm').onclick=()=>{r.remove();refresh()};foods.appendChild(r);refresh()}addFood.onclick=()=>addRow();document.querySelectorAll('.q').forEach(x=>x.onclick=()=>addRow(x.dataset.n,x.dataset.a,x.dataset.k,x.dataset.p));document.querySelectorAll('.bq').forEach(x=>x.onclick=()=>{beer.value=x.dataset.v;refresh()});
-document.querySelectorAll('#types button').forEach(x=>x.onclick=()=>{document.querySelectorAll('#types button').forEach(y=>y.classList.remove('active'));x.classList.add('active');type=x.dataset.v;partsWrap.classList.toggle('hidden',!type.includes('力量'));refresh()});document.querySelectorAll('#parts button').forEach(x=>x.onclick=()=>{const v=x.dataset.v;if(parts.has(v)){parts.delete(v);x.classList.remove('active')}else{parts.add(v);x.classList.add('active')}refresh()});['date','weight','steps','sleep','mins','intensity','moves','beer','beerK','note'].forEach(id=>$(id).oninput=refresh);
-function foodRows(){return[...document.querySelectorAll('.food')].map(r=>({name:r.querySelector('.fn').value.trim(),amount:r.querySelector('.fa').value.trim(),kcal:r.querySelector('.fk').value.trim(),protein:r.querySelector('.fp').value.trim()})).filter(x=>x.name||x.amount||x.kcal||x.protein)}function ft(){let k=0,p=0;foodRows().forEach(x=>{if(x.kcal)k+=+x.kcal;if(x.protein)p+=+x.protein});return{k:Math.round(k),p:Math.round(p)}}function ftext(){const a=foodRows();return a.length?a.map(x=>'- '+(x.name||'食物')+(x.amount?' '+x.amount:'')+((x.kcal||x.protein)?'（'+[x.kcal?x.kcal+' kcal':'',x.protein?'蛋白'+x.protein+'g':''].filter(Boolean).join(' / ')+'）':'')).join('
-'):'未记录'}function train(){return[type,parts.size?[...parts].join('+'):'',mins.value?mins.value+'分钟':'',intensity.value,moves.value.trim()].filter(Boolean).join('｜')}function text(){const p=gp(),f=ft(),bc=+beer.value||0,bk=+beerK.value||0,bt=bc*bk;return `【减脂日报】
-日期：${date.value}
-晨重：${weight.value?weight.value+'kg':'未记录'}
-步数：${steps.value||'未记录'}
-睡眠：${sleep.value?sleep.value+'小时':'未记录'}
-训练：${train()}
+const $ = id => document.getElementById(id);
+const PROFILE_KEY="cut-share-profile-v1";
+const LOG_KEY="cut-share-log-v1";
+let training="无";
+let bodyParts=new Set();
+
+function todayISO(){
+  const d=new Date(), off=d.getTimezoneOffset();
+  return new Date(d.getTime()-off*60000).toISOString().slice(0,10);
+}
+function getProfile(){try{return JSON.parse(localStorage.getItem(PROFILE_KEY)||"null")}catch(e){return null}}
+function getLogs(){try{return JSON.parse(localStorage.getItem(LOG_KEY)||"[]")}catch(e){return[]}}
+function saveLogs(v){localStorage.setItem(LOG_KEY,JSON.stringify(v.slice(-180)))}
+function calcBMR(p){
+  const base=10*p.weight+6.25*p.height-5*p.age;
+  return Math.round(p.sex==="male" ? base+5 : base-161);
+}
+function calcTDEE(p){
+  const bmr=calcBMR(p);
+  let extra=0;
+  const gym=Number(p.gym||0);
+  if(gym>0) extra = Math.min(220, gym*45); // modest weekly training average
+  return Math.round(bmr*Number(p.activity||1.2)+extra);
+}
+function calcTarget(p){return Math.round(calcTDEE(p)*(1-Number(p.deficit||0.15)))}
+function calcProtein(p){return Math.round(p.weight*2.0)}
+
+function showApp(){
+  const p=getProfile();
+  $("onboardingView").classList.add("hidden");
+  $("appView").classList.remove("hidden");
+  $("stickyBar").classList.remove("hidden");
+  $("date").value=todayISO();
+  $("beerKcal").value=p.beerKcal||115;
+  $("beerLabel").textContent=`${p.beerMl||500}ml/罐`;
+  refreshProfileUI();
+  if(!$("foodList").children.length) addFood();
+  refresh();
+}
+function showOnboarding(prefill=true){
+  $("appView").classList.add("hidden");
+  $("stickyBar").classList.add("hidden");
+  $("onboardingView").classList.remove("hidden");
+  const p=getProfile();
+  if(p&&prefill){
+    $("pName").value=p.name||"";
+    $("pSex").value=p.sex||"male";
+    $("pAge").value=p.age||"";
+    $("pHeight").value=p.height||"";
+    $("pWeight").value=p.weight||"";
+    $("pGoalWeight").value=p.goalWeight||"";
+    $("pActivity").value=String(p.activity||1.2);
+    $("pGym").value=String(p.gym||3);
+    $("pSteps").value=p.baseSteps||"";
+    $("pDeficit").value=String(p.deficit||0.15);
+    $("pBeerMl").value=p.beerMl||500;
+    $("pBeerKcal").value=p.beerKcal||115;
+  }
+}
+function refreshProfileUI(){
+  const p=getProfile(); if(!p)return;
+  const bmr=calcBMR(p), tdee=calcTDEE(p), target=calcTarget(p), prot=calcProtein(p);
+  $("helloTitle").textContent=p.name?`${p.name} 的减脂随手记`:"减脂随手记";
+  $("bmrVal").textContent=bmr;
+  $("tdeeVal").textContent=tdee;
+  $("targetKcal").textContent=target;
+  $("targetKpi").textContent=target;
+  $("proteinTarget").textContent=`${prot}g`;
+  $("proteinKpi").textContent=prot;
+  const logs=getLogs().filter(x=>x.weight);
+  const current=logs.length?Number(logs[logs.length-1].weight):Number(p.weight);
+  const start=Number(p.weight), goal=Number(p.goalWeight);
+  let prog=0;
+  if(start!==goal) prog=((start-current)/(start-goal))*100;
+  prog=Math.max(0,Math.min(100,prog));
+  $("goalProgress").style.width=prog+"%";
+}
+$("startBtn").onclick=()=>{
+  const p={
+    name:$("pName").value.trim(),
+    sex:$("pSex").value,
+    age:Number($("pAge").value),
+    height:Number($("pHeight").value),
+    weight:Number($("pWeight").value),
+    goalWeight:Number($("pGoalWeight").value),
+    activity:Number($("pActivity").value),
+    gym:Number($("pGym").value),
+    baseSteps:Number($("pSteps").value||0),
+    deficit:Number($("pDeficit").value),
+    beerMl:Number($("pBeerMl").value||500),
+    beerKcal:Number($("pBeerKcal").value||115)
+  };
+  if(!p.age||!p.height||!p.weight||!p.goalWeight){
+    alert("请至少填写年龄、身高、体重和目标体重。"); return;
+  }
+  localStorage.setItem(PROFILE_KEY,JSON.stringify(p));
+  showApp();
+};
+$("settingsBtn").onclick=()=>showOnboarding(true);
+
+function addFood(name="",amount="",kcal=""){
+  const row=document.createElement("div");
+  row.className="food-row";
+  row.innerHTML=`
+    <input class="fname" placeholder="食物" value="${name}">
+    <input class="famount" placeholder="克数/份" value="${amount}">
+    <input class="fkcal" type="number" placeholder="kcal" value="${kcal}">
+    <button class="ghost remove">×</button>`;
+  row.querySelectorAll("input").forEach(i=>i.addEventListener("input",refresh));
+  row.querySelector(".remove").onclick=()=>{row.remove();refresh()};
+  $("foodList").appendChild(row); refresh();
+}
+document.querySelectorAll(".quick").forEach(btn=>btn.onclick=()=>addFood(btn.dataset.name,btn.dataset.amount,""));
+$("addFoodBtn").onclick=()=>addFood();
+document.querySelectorAll("#trainingChips .chip").forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll("#trainingChips .chip").forEach(x=>x.classList.remove("active"));
+    btn.classList.add("active"); training=btn.dataset.v; refresh();
+  }
+});
+document.querySelectorAll(".bodypart").forEach(btn=>{
+  btn.onclick=()=>{
+    const v=btn.dataset.v;
+    if(bodyParts.has(v)){bodyParts.delete(v);btn.classList.remove("active");}
+    else{bodyParts.add(v);btn.classList.add("active");}
+    refresh();
+  }
+});
+document.querySelectorAll(".beerQuick").forEach(btn=>btn.onclick=()=>{$("beerCount").value=btn.dataset.v;refresh()});
+["date","weight","steps","sleep","beerCount","beerKcal","foodKcal","protein","foodNote","trainingMinutes","trainingIntensity","mainExercises"].forEach(id=>$(id).addEventListener("input",refresh));
+
+function getFoods(){
+  return [...document.querySelectorAll(".food-row")].map(r=>({
+    name:r.querySelector(".fname").value.trim(),
+    amount:r.querySelector(".famount").value.trim(),
+    kcal:r.querySelector(".fkcal").value.trim()
+  })).filter(x=>x.name||x.amount||x.kcal);
+}
+function foodText(){
+  const f=getFoods(); if(!f.length)return"未记录";
+  return f.map(x=>{
+    let s=x.name||"未命名食物";
+    if(x.amount)s+=` ${x.amount}`;
+    if(x.kcal)s+=`（${x.kcal} kcal）`;
+    return `- ${s}`;
+  }).join("\n");
+}
+function buildText(){
+  const p=getProfile();
+  const bc=Number($("beerCount").value||0), bk=Number($("beerKcal").value||0);
+  const beerTotal=bc*bk;
+  const foodK=$("foodKcal").value?Number($("foodKcal").value):null;
+  const total=foodK===null?null:foodK+beerTotal;
+  return `【减脂日报】
+日期：${$("date").value}
+晨重：${$("weight").value ? $("weight").value+"kg":"未记录"}
+步数：${$("steps").value||"未记录"}
+训练：${training}${bodyParts.size?"｜"+[...bodyParts].join("+"):""}${$("trainingMinutes").value?"｜"+$("trainingMinutes").value+"分钟":""}${$("trainingIntensity").value?"｜"+$("trainingIntensity").value:""}${$("mainExercises").value.trim()?"｜"+$("mainExercises").value.trim():""}
+睡眠：${$("sleep").value?$("sleep").value+"小时":"未记录"}
 
 【今天吃了什么】
-${ftext()}
-备注：${note.value.trim()||'无'}
+${foodText()}
+备注：${$("foodNote").value.trim()||"无"}
 
 【酒精】
-500ml × ${bc}罐（按 ${bk} kcal/罐）≈ ${bt} kcal
+${p?.beerMl||500}ml × ${bc}罐
+按 ${bk} kcal/罐估算：≈ ${beerTotal} kcal
 
-【自动统计】
-已记录食物热量：≈ ${f.k} kcal
-已记录蛋白质：≈ ${f.p} g
-已知总摄入：≈ ${f.k+bt} kcal
+【可选统计】
+正常食物热量：${foodK===null?"未统计":foodK+" kcal"}
+蛋白质：${$("protein").value?$("protein").value+"g":"未统计"}
+当天已知总摄入：${total===null?"无法精确统计":"≈ "+total+" kcal"}
 
-【当前目标】
-估算 TDEE：${tdee(p)} kcal
-减脂参考热量：${targetK(p)} kcal
-蛋白目标：${ptarget(p)} g
+【我的当前目标】
+估算 TDEE：${p?calcTDEE(p):"—"} kcal
+减脂目标热量：${p?calcTarget(p):"—"} kcal
+蛋白目标：${p?calcProtein(p):"—"} g
 
-请结合连续记录判断今天是否在可接受范围、蛋白是否够、训练恢复是否匹配、最该调整饮食/酒精/步数中的哪一个，并优先参考7–14天趋势。`}
-function refresh(){const f=ft(),bt=(+beer.value||0)*(+beerK.value||0);foodTotal.textContent=f.k;beerTotal.textContent=bt;total.textContent=f.k+bt;protein.textContent=f.p;preview.textContent=text()}function snap(){return{date:date.value,weight:weight.value,steps:steps.value,sleep:sleep.value,type,parts:[...parts],mins:mins.value,intensity:intensity.value,moves:moves.value,beerCount:beer.value,beerKcal:beerK.value,foods:foodRows(),foodNote:note.value}}function saveDay(){const s=snap();let a=gl().filter(x=>x.date!==s.date);a.push(s);a.sort((x,y)=>x.date.localeCompare(y.date));localStorage.setItem(LK,JSON.stringify(a.slice(-365)));save.textContent='已保存 ✓';setTimeout(()=>save.textContent='保存今天',900)}save.onclick=saveDay;copyY.onclick=()=>{const a=gl();if(!a.length)return alert('还没有历史记录');const x=a[a.length-1];foods.innerHTML='';(x.foods||[]).forEach(i=>addRow(i.name,i.amount,i.kcal,i.protein));note.value=x.foodNote||'';refresh()};share.onclick=async()=>{saveDay();const tx=text();if(navigator.share){try{return await navigator.share({title:'减脂日报',text:tx})}catch(e){}}try{await navigator.clipboard.writeText(tx);alert('日报已复制，打开 ChatGPT 后粘贴发送即可。')}catch(e){prompt('复制下面内容：',tx)}};
-function tab(n){todayPanel.classList.toggle('hidden',n!=='today');trendPanel.classList.toggle('hidden',n!=='trend');dataPanel.classList.toggle('hidden',n!=='data');bar.classList.toggle('hidden',n!=='today');[todayTab,trendTab,dataTab].forEach(x=>x.className='ghost');(n==='today'?todayTab:n==='trend'?trendTab:dataTab).className='active';if(n==='trend')renderTrend()}todayTab.onclick=()=>tab('today');trendTab.onclick=()=>tab('trend');dataTab.onclick=()=>tab('data');
-const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;function renderTrend(){const logs=gl(),w=logs.filter(x=>x.weight).sort((a,b)=>a.date.localeCompare(b.date)),last=w.slice(-7),prev=w.slice(-14,-7),a=avg(last.map(x=>+x.weight)),p=avg(prev.map(x=>+x.weight));avg7.textContent=a?a.toFixed(2):'—';prev7.textContent=p?p.toFixed(2):'—';delta.textContent=(a&&p)?(a-p).toFixed(2):'—';beer7.textContent=logs.slice(-7).reduce((s,x)=>s+(+x.beerCount||0),0);trendText.textContent=(a&&p)?`最近7日均重较前7日 ${(a-p)>=0?'+':''}${(a-p).toFixed(2)}kg`:'至少需要8天体重数据';history.innerHTML=logs.slice(-14).reverse().map(x=>`<div class="history"><b>${x.date}</b> · ${x.weight||'-'}kg · 🍺${x.beerCount||0} · ${x.steps||'-'}步 · ${x.type||'未记录'} ${(x.parts||[]).length?'· '+x.parts.join('+'):''}</div>`).join('')||'<div class="small">还没有记录。</div>';draw(w.slice(-14))}function draw(d){const c=chart,x=c.getContext('2d'),W=c.width,H=c.height;x.clearRect(0,0,W,H);if(d.length<2){x.fillStyle='#9099a8';x.font='16px system-ui';x.fillText('至少需要2条体重记录',20,40);return}const v=d.map(i=>+i.weight),mn=Math.min(...v)-.3,mx=Math.max(...v)+.3;x.strokeStyle='#2d3542';x.lineWidth=1;for(let i=1;i<4;i++){let y=20+(H-45)*i/4;x.beginPath();x.moveTo(34,y);x.lineTo(W-10,y);x.stroke()}x.strokeStyle='#63d792';x.lineWidth=3;x.beginPath();d.forEach((i,j)=>{let px=34+(W-50)*j/(d.length-1),py=15+(H-45)*(1-(+i.weight-mn)/(mx-mn));j?x.lineTo(px,py):x.moveTo(px,py)});x.stroke()}
-export.onclick=()=>{const b=new Blob([JSON.stringify({profile:gp(),logs:gl()},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='减脂随手记_备份.json';a.click()};import.onclick=()=>importFile.click();importFile.onchange=async e=>{try{const d=JSON.parse(await e.target.files[0].text());if(d.profile)localStorage.setItem(PK,JSON.stringify(d.profile));if(Array.isArray(d.logs))localStorage.setItem(LK,JSON.stringify(d.logs));location.reload()}catch(e){alert('导入失败')}};reset.onclick=()=>{if(confirm('确定清空当前设备数据吗？')){localStorage.removeItem(PK);localStorage.removeItem(LK);location.reload()}};
-if(gp())showApp();else showSetup();
-</script></body></html>
+请结合我的连续记录判断：
+1）今天是否在可接受范围；
+2）蛋白质是否大致够；
+3）最该调整的是饮食、酒精还是步数；
+4）不要根据单日体重波动过度调整，优先参考 7–14 天趋势。`;
+}
+function refresh(){
+  const beerTotal=Number($("beerCount").value||0)*Number($("beerKcal").value||0);
+  $("beerTotal").textContent=beerTotal;
+  $("knownTotal").textContent=$("foodKcal").value?Number($("foodKcal").value)+beerTotal:"—";
+  $("preview").textContent=buildText();
+}
+function snapshot(){
+  return {
+    date:$("date").value,weight:$("weight").value,steps:$("steps").value,sleep:$("sleep").value,
+    training,bodyParts:[...bodyParts],trainingMinutes:$("trainingMinutes").value,trainingIntensity:$("trainingIntensity").value,mainExercises:$("mainExercises").value,beerCount:$("beerCount").value,beerKcal:$("beerKcal").value,
+    foodKcal:$("foodKcal").value,protein:$("protein").value,foodNote:$("foodNote").value,foods:getFoods()
+  };
+}
+function save(){
+  const s=snapshot();
+  let arr=getLogs().filter(x=>x.date!==s.date);
+  arr.push(s); arr.sort((a,b)=>a.date.localeCompare(b.date)); saveLogs(arr);
+  const p=getProfile();
+  if(s.weight && p){
+    // keep original starting weight intact, just refresh UI
+    refreshProfileUI();
+  }
+  $("saveBtn").textContent="已保存 ✓";
+  setTimeout(()=>$("saveBtn").textContent="保存今天",1000);
+}
+$("saveBtn").onclick=save;
+$("repeatBtn").onclick=()=>{
+  const arr=getLogs(); if(!arr.length){alert("还没有昨天的记录");return}
+  const last=arr[arr.length-1];
+  $("foodList").innerHTML="";
+  (last.foods||[]).forEach(x=>addFood(x.name,x.amount,x.kcal));
+  $("foodNote").value=last.foodNote||"";
+  $("foodKcal").value=last.foodKcal||"";
+  $("protein").value=last.protein||"";
+  refresh();
+};
+
+function renderHistory(){
+  const arr=getLogs().slice(-14).reverse();
+  $("history").innerHTML=arr.length?arr.map(x=>{
+    const bt=Number(x.beerCount||0)*Number(x.beerKcal||0);
+    const total=x.foodKcal?Number(x.foodKcal)+bt:"—";
+    return `<div class="history-item">
+      <b>${x.date}</b> · ${x.weight||"-"}kg · ${total} kcal · 🍺${x.beerCount||0} · ${x.steps||"-"}步 · ${x.training||"无"}
+    </div>`;
+  }).join(""):`<div class="small">还没有记录。</div>`;
+}
+function setTab(tab){
+  $("todayPanel").classList.toggle("hidden",tab!=="today");
+  $("historyPanel").classList.toggle("hidden",tab!=="history");
+  $("dataPanel").classList.toggle("hidden",tab!=="data");
+  $("tabToday").className=tab==="today"?"secondary":"ghost";
+  $("tabHistory").className=tab==="history"?"secondary":"ghost";
+  $("tabData").className=tab==="data"?"secondary":"ghost";
+  $("stickyBar").classList.toggle("hidden",tab!=="today");
+  if(tab==="history")renderHistory();
+}
+$("tabToday").onclick=()=>setTab("today");
+$("tabHistory").onclick=()=>setTab("history");
+$("tabData").onclick=()=>setTab("data");
+
+$("shareBtn").onclick=async()=>{
+  save();
+  const text=buildText();
+  if(navigator.share){
+    try{await navigator.share({title:"减脂日报",text});return}catch(e){}
+  }
+  try{await navigator.clipboard.writeText(text);alert("已复制日报，打开 ChatGPT 后直接粘贴发送即可。")}
+  catch(e){prompt("复制下面内容发给 ChatGPT：",text)}
+};
+
+$("exportBtn").onclick=()=>{
+  const data={profile:getProfile(),logs:getLogs(),exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="减脂随手记_备份.json"; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+$("importBtn").onclick=()=>$("importFile").click();
+$("importFile").onchange=async(e)=>{
+  const f=e.target.files[0]; if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(d.profile)localStorage.setItem(PROFILE_KEY,JSON.stringify(d.profile));
+    if(Array.isArray(d.logs))saveLogs(d.logs);
+    alert("导入完成"); location.reload();
+  }catch(err){alert("导入失败：文件格式不正确")}
+};
+$("resetBtn").onclick=()=>{
+  if(confirm("确定清空这个浏览器里的个人设置和全部记录吗？")){
+    localStorage.removeItem(PROFILE_KEY); localStorage.removeItem(LOG_KEY); location.reload();
+  }
+};
+$("shareToolBtn").onclick=async()=>{
+  const msg="我在用这个减脂记录工具，打开后会建立你自己的个人目标，数据只保存在你自己的浏览器里。";
+  if(navigator.share){
+    try{await navigator.share({title:"减脂随手记 · 分享版",text:msg});return}catch(e){}
+  }
+  try{await navigator.clipboard.writeText(msg);alert("分享文案已复制。把这个 HTML 文件或部署后的网页链接一起发给朋友即可。")}
+  catch(e){alert("请直接把这个 HTML 文件或部署后的网页链接发给朋友。")}
+};
+
+if(getProfile())showApp();else showOnboarding(false);
+</script>
+</body>
+</html>
